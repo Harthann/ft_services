@@ -42,12 +42,7 @@ NGINX_PATH=$PWD/srcs/nginx
 
 apply_kustom ()
 {
-	set +e
-	rm ~/.ssh/known_hosts
-	kubectl create secret generic ssh-keys \
-		--from-file=ssh-privatekey=$NGINX_PATH/.ssh/id_rsa \
-		--from-file=ssh-publickey=$NGINX_PATH/.ssh/id_rsa.pub
-	set -e
+	ssh-keygen -R 192.168.99.3
 	kubectl apply -k srcs/kustomization
 	sleep 10
 	kubectl apply -f srcs/kustomization/telegraf.yaml
@@ -56,6 +51,7 @@ apply_kustom ()
 image_build ()
 {
 	eval $(minikube -p minikube docker-env)
+	sed s/__MINIKUBEIP__/$(minikube ip)/g < srcs/telegraf/telegraf_generic.conf > srcs/telegraf/telegraf.conf
 	docker build $DOCKER_PATH/nginx -t custom_nginx
 	docker build $DOCKER_PATH/wordpress -t custom_wp
 	docker build $DOCKER_PATH/mysql -t custom_mysql
@@ -64,7 +60,6 @@ image_build ()
 	docker build $DOCKER_PATH/grafana -t custom_grafana
 	docker build $DOCKER_PATH/ftps -t custom_ftps
 	docker build $DOCKER_PATH/influxdb -t custom_influxdb
-
 }
 
 vm_start ()
@@ -78,8 +73,6 @@ vm_start ()
    		sp=${sp#?}${sp%???}
 	    sleep 1;
 	done
-	sed s/__MINIKUBEIP__/$(minikube ip)/g < srcs/telegraf/telegraf_generic.conf > srcs/telegraf/telegraf.conf
-	# sed 's/__MINIKUBEIP__/192.168.99.6/g' < srcs/wordpress/wordpress_generic.sql > srcs/wordpress/wordpress.sql
 	minikube addons enable metrics-server
 	minikube addons enable metallb
 	minikube dashboard > logs/dashboard_logs &
@@ -248,8 +241,6 @@ elif [ "$1" == "env" ]; then
 	echo "eval $(minikube docker-env)"
 elif [ "$1" == "count" ]; then
 	cat count
-elif [ "$1" == "sed" ]; then
-	sed s/__MINIKUBEIP__/$(minikube ip)/g < srcs/telegraf/telegraf_generic.conf > srcs/telegraf/telegraf.conf
 elif [ !$1 ]; then
 	script_help;
 fi

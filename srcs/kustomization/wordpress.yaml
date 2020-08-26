@@ -12,43 +12,25 @@ spec:
       targetPort: 5050
       protocol: TCP
   selector:
-    app: ft_service
-    tier: wordpress
+    app: wordpress
 ---
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: wp-pv-claim
-  labels:
-    app: ft_service
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 500Mi
----
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wordpress
   labels:
-    app: ft_service
+    app: wordpress
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ft_service
-      tier: wordpress
+      app: wordpress
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: ft_service
-        tier: wordpress
+        app: wordpress
     spec:
       containers:
       - image: custom_wp
@@ -68,10 +50,3 @@ spec:
           - containerPort: 9000
           - containerPort: 5050
             name: wordpress
-        volumeMounts:
-        - name: wordpress-persistent-storage
-          mountPath: /var/www/html
-      volumes:
-      - name: wordpress-persistent-storage
-        persistentVolumeClaim:
-          claimName: wp-pv-claim

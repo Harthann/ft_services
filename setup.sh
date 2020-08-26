@@ -39,7 +39,8 @@ set -e
 
 DOCKER_PATH=$PWD/srcs
 NGINX_PATH=$PWD/srcs/nginx
-function apply_kustom
+
+apply_kustom ()
 {
 	set +e
 	rm ~/.ssh/known_hosts
@@ -52,7 +53,7 @@ function apply_kustom
 	kubectl apply -f srcs/kustomization/telegraf.yaml
 }
 
-function image_build
+image_build ()
 {
 	eval $(minikube -p minikube docker-env)
 	docker build $DOCKER_PATH/nginx -t custom_nginx
@@ -66,7 +67,7 @@ function image_build
 
 }
 
-function vm_start
+vm_start ()
 {
 	minikube config set vm-driver virtualbox
 	minikube start --memory 3g > logs/vm_launching_logs &
@@ -84,7 +85,7 @@ function vm_start
 	minikube dashboard > logs/dashboard_logs &
 }
 
-function launcher
+launcher ()
 {
 	minikube config set vm-driver virtualbox
 	minikube start --memory 3g > logs/vm_launching_logs &
@@ -103,7 +104,7 @@ function launcher
 	ip
 }
 
-function script_help
+script_help ()
 {
 	echo "setup.sh: Optiens"
 	echo "usage: sh setup.sh [options]"
@@ -119,13 +120,13 @@ function script_help
 	echo "\\t count\\t: Print the number of time the script as been launched."
 }
 
-function clear
+clear ()
 {
 	kubectl delete all --all
 	kubectl delete pvc --all
 }
 
-function logs
+logs ()
 {
 	case $1 in
 		"nginx")
@@ -143,7 +144,7 @@ function logs
 	esac
 }
 
-function enter
+enter ()
 {
 	case $1 in
 		"nginx")
@@ -166,7 +167,7 @@ function enter
 	esac
 }
 
-function ip
+ip ()
 {
 	echo "|----------------------|---------------------------|--------------------------------|"
 	echo "| default      \\t       | Ft_services ip\\t\\t   | http://$(minikube ip) \\t    |" 2> /dev/null
@@ -187,10 +188,20 @@ function ip
 # sp="$clock_1$clock_2$clock_3$clock_4$clock_5$clock_6$clock_7"
 
 sp="/-\|"
-export MINIKUBE_HOME=~/goinfre
+# if [ "$OSTYPE" == "darwin"* ]; then
+	export MINIKUBE_HOME=~/goinfre
+# fi
 
+# case "$OSTYPE" in
+#   solaris*) echo "SOLARIS" ;;
+#   darwin*)  echo "OSX" ;; 
+#   linux*)   echo "LINUX" ;;
+#   bsd*)     echo "BSD" ;;
+#   msys*)    echo "WINDOWS" ;;
+#   *)        echo "unknown: $OSTYPE" ;;
+# esac
 
-if [ "$1" = "remove" ]; then
+if [ "$1" == "remove" ]; then
 	case $2 in
 		"pods")
 			kubectl delete all --all
@@ -200,10 +211,10 @@ if [ "$1" = "remove" ]; then
 			minikube delete
 			;;
 	esac
-elif [ "$1" = "stop" ]; then
+elif [ "$1" == "stop" ]; then
 	kubectl delete -k srcs/kustomization
 	minikube stop;
-elif [ "$1" = "list" ]; then
+elif [ "$1" == "list" ]; then
 	minikube service list;
 	ip;
 elif [ "$1" == "update" ]; then

@@ -23,6 +23,14 @@ spec:
     targetPort: 30021
     protocol: TCP
     name: psv-ftps-file
+  - port: 30022
+    targetPort: 30022
+    protocol: TCP
+    name: psv-ftps-command-2
+  - port: 30023
+    targetPort: 30023
+    protocol: TCP
+    name: psv-ftps-file-2
   selector:
     app: ftps
 ---

@@ -17,5 +17,5 @@ RUN chown admin /home/admin
 COPY pure-ftpd.pem /etc/ssl/private/
 COPY entrypoint.sh /entrypoint.sh
 
-EXPOSE 21 20 30021 30020 206 208 250 65
+EXPOSE 21 20 30020-30023
 CMD ["sh", "/entrypoint.sh"]

@@ -155,6 +155,9 @@ enter ()
 		"ftps")
 			kubectl exec -it $(kubectl get pods | grep ftps | awk '{print $1}') sh
 			;;
+		"influxdb")
+			kubectl exec -it $(kubectl get pods | grep influxdb | awk '{print $1}') sh
+			;;
 		*)
 			echo "Please choose a pod to enter"
 	esac
@@ -162,9 +165,17 @@ enter ()
 
 ip ()
 {
-	echo "|----------------------|---------------------------|--------------------------------|"
-	echo "| default      \\t       | Ft_services ip\\t\\t   | http://$(minikube ip) \\t    |" 2> /dev/null
-	echo "|----------------------|---------------------------|--------------------------------|"
+	echo "|----------------------|---------------------------|-------------------------------|"
+	echo "|   ACCESS             |     SERVICE NAME          |     IP ADDRESS                |"
+	echo "|----------------------|---------------------------|-------------------------------|"
+	echo "| Navigator            |      Nginx                |     http://192.168.99.4       |"
+	echo "| Navigator            |      Wordpress            |     http://192.168.99.6:5050  |"
+	echo "| Navigator            |      PHP My Admin         |     http://192.168.99.5:5000  |"
+	echo "| Navigator            |      Grafana              |     http://192.168.99.3:3000  |"
+	echo "|----------------------|---------------------------|-------------------------------|"
+	echo "| Filezilla            |      FTPS                 |     192.168.99.2:21           |"
+	echo "| SSH                  |      Nginx                |     192.168.99.4:22           |"
+	echo "|----------------------|---------------------------|-------------------------------|"
 }
 
 #########################
@@ -230,8 +241,8 @@ elif [ "$1" == "build" ]; then
 	image_build;
 elif [ "$1" == "addons" ]; then
 	minikube addons list
-elif [ "$1" == "start" ]; then
-	launcher;
+elif [ "$1" == "help" ]; then
+	script_help;
 elif [ "$1" == "logs" ]; then
 	logs $2;
 elif [ "$1" == "enter" ]; then
@@ -241,6 +252,8 @@ elif [ "$1" == "env" ]; then
 	echo "eval $(minikube docker-env)"
 elif [ "$1" == "count" ]; then
 	cat count
+elif [ "$1" == "ip" ]; then
+	ip
 elif [ !$1 ]; then
-	script_help;
+	launcher;
 fi

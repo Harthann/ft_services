@@ -39,6 +39,11 @@ set -e
 
 DOCKER_PATH=$PWD/srcs
 NGINX_PATH=$PWD/srcs/nginx
+if [ "$OSTYPE" == "darwin"* ]; then
+	DRIVER=virtualbox
+else
+	DRIVER=docker
+fi
 
 apply_kustom ()
 {
@@ -64,8 +69,8 @@ image_build ()
 
 vm_start ()
 {
-	minikube config set vm-driver virtualbox
-	minikube start --memory 3g > logs/vm_launching_logs &
+	# minikube config set vm-driver virtualbox
+	minikube start --driver=$DRIVER --memory 3g > logs/vm_launching_logs &
 	pid=$!
 	/bin/echo "Launching minikube"
 	while kill -0 $pid 2> /dev/null; do
@@ -80,8 +85,8 @@ vm_start ()
 
 launcher ()
 {
-	minikube config set vm-driver virtualbox
-	minikube start --memory 3g > logs/vm_launching_logs &
+	# minikube config set vm-driver virtualbox
+	minikube start --driver=$DRIVER --memory 3g > logs/vm_launching_logs &
 	pid=$!
 	/bin/echo "Launching minikube"
 	while kill -0 $pid 2> /dev/null; do
@@ -192,9 +197,9 @@ ip ()
 # sp="$clock_1$clock_2$clock_3$clock_4$clock_5$clock_6$clock_7"
 
 sp="/-\|"
-# if [ "$OSTYPE" == "darwin"* ]; then
+if [ "$OSTYPE" == "darwin"* ]; then
 	export MINIKUBE_HOME=~/goinfre
-# fi
+fi
 
 # case "$OSTYPE" in
 #   solaris*) echo "SOLARIS" ;;
@@ -205,7 +210,7 @@ sp="/-\|"
 #   *)        echo "unknown: $OSTYPE" ;;
 # esac
 
-if [ "$1" == "remove" ]; then
+if [ "$1" = "remove" ]; then
 	case $2 in
 		"pods")
 			kubectl delete all --all
@@ -215,44 +220,44 @@ if [ "$1" == "remove" ]; then
 			minikube delete
 			;;
 	esac
-elif [ "$1" == "stop" ]; then
+elif [ "$1" = "stop" ]; then
 	kubectl delete -k srcs/kustomization
 	minikube stop;
-elif [ "$1" == "list" ]; then
+elif [ "$1" = "list" ]; then
 	minikube service list;
 	ip;
-elif [ "$1" == "update" ]; then
+elif [ "$1" = "update" ]; then
 	kubectl delete all --all
 	image_build
 	apply_kustom
 	ip;
-elif [ "$1" == "apply" ]; then
+elif [ "$1" = "apply" ]; then
 	apply_kustom
 	ip;
-elif [ "$1" == "reapply" ]; then
+elif [ "$1" = "reapply" ]; then
 	clear
 	image_build
 	apply_kustom
 	minikube service list
 	ip;
-elif [ "$1" == "dashboard" ]; then
+elif [ "$1" = "dashboard" ]; then
 	open $(cat logs/dashboard_logs | awk '{print $3}')
-elif [ "$1" == "build" ]; then
+elif [ "$1" = "build" ]; then
 	image_build;
-elif [ "$1" == "addons" ]; then
+elif [ "$1" = "addons" ]; then
 	minikube addons list
-elif [ "$1" == "help" ]; then
+elif [ "$1" = "help" ]; then
 	script_help;
-elif [ "$1" == "logs" ]; then
+elif [ "$1" = "logs" ]; then
 	logs $2;
-elif [ "$1" == "enter" ]; then
+elif [ "$1" = "enter" ]; then
 	enter $2;
-elif [ "$1" == "env" ]; then
+elif [ "$1" = "env" ]; then
 	echo "export MINIKUBE_HOME=~/goinfre"
 	echo "eval $(minikube docker-env)"
-elif [ "$1" == "count" ]; then
+elif [ "$1" = "count" ]; then
 	cat count
-elif [ "$1" == "ip" ]; then
+elif [ "$1" = "ip" ]; then
 	ip
 elif [ !$1 ]; then
 	launcher;

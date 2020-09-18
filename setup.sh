@@ -39,11 +39,14 @@ set -e
 
 DOCKER_PATH=$PWD/srcs
 NGINX_PATH=$PWD/srcs/nginx
-if [ "$OSTYPE" == "darwin"* ]; then
-	DRIVER=virtualbox
-else
-	DRIVER=docker
-fi
+#DRIVER=virtualbox
+DRIVER=docker
+
+#sudo usermod -aG docker $USER && newgrp docker
+#curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+#  && chmod +x minikube
+#mkdir -p /usr/local/bin/
+#install minikube /usr/local/bin/
 
 apply_kustom ()
 {
@@ -70,7 +73,7 @@ image_build ()
 vm_start ()
 {
 	# minikube config set vm-driver virtualbox
-	minikube start --driver=$DRIVER --memory 3g > logs/vm_launching_logs &
+	minikube start --driver=$DRIVER  > logs/vm_launching_logs &
 	pid=$!
 	/bin/echo "Launching minikube"
 	while kill -0 $pid 2> /dev/null; do
@@ -86,7 +89,7 @@ vm_start ()
 launcher ()
 {
 	# minikube config set vm-driver virtualbox
-	minikube start --driver=$DRIVER --memory 3g > logs/vm_launching_logs &
+	minikube start --driver=$DRIVER  > logs/vm_launching_logs &
 	pid=$!
 	/bin/echo "Launching minikube"
 	while kill -0 $pid 2> /dev/null; do
@@ -173,13 +176,13 @@ ip ()
 	echo "|----------------------|---------------------------|-------------------------------|"
 	echo "|   ACCESS             |     SERVICE NAME          |     IP ADDRESS                |"
 	echo "|----------------------|---------------------------|-------------------------------|"
-	echo "| Navigator            |      Nginx                |     http://192.168.99.4       |"
-	echo "| Navigator            |      Wordpress            |     http://192.168.99.6:5050  |"
-	echo "| Navigator            |      PHP My Admin         |     http://192.168.99.5:5000  |"
-	echo "| Navigator            |      Grafana              |     http://192.168.99.3:3000  |"
+	echo "| Navigator            |      Nginx                |     http://172.17.255.3       |"
+	echo "| Navigator            |      Wordpress            |     http://172.17.255.5:5050  |"
+	echo "| Navigator            |      PHP My Admin         |     http://172.17.255.4:5000  |"
+	echo "| Navigator            |      Grafana              |     http://192.17.255.2:3000  |"
 	echo "|----------------------|---------------------------|-------------------------------|"
-	echo "| Filezilla            |      FTPS                 |     192.168.99.2:21           |"
-	echo "| SSH                  |      Nginx                |     192.168.99.4:22           |"
+	echo "| Filezilla            |      FTPS                 |     172.17.255.1:21           |"
+	echo "| SSH                  |      Nginx                |     172.17.255.3:22           |"
 	echo "|----------------------|---------------------------|-------------------------------|"
 }
 
@@ -197,9 +200,9 @@ ip ()
 # sp="$clock_1$clock_2$clock_3$clock_4$clock_5$clock_6$clock_7"
 
 sp="/-\|"
-if [ "$OSTYPE" == "darwin"* ]; then
-	export MINIKUBE_HOME=~/goinfre
-fi
+#if [ "$OSTYPE" == "darwin"* ]; then
+#	export MINIKUBE_HOME=~/goinfre
+#fi
 
 # case "$OSTYPE" in
 #   solaris*) echo "SOLARIS" ;;
@@ -253,7 +256,7 @@ elif [ "$1" = "logs" ]; then
 elif [ "$1" = "enter" ]; then
 	enter $2;
 elif [ "$1" = "env" ]; then
-	echo "export MINIKUBE_HOME=~/goinfre"
+#	echo "export MINIKUBE_HOME=~/goinfre"
 	echo "eval $(minikube docker-env)"
 elif [ "$1" = "count" ]; then
 	cat count

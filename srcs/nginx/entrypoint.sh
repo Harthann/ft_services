@@ -4,4 +4,7 @@ touch /run/openrc/softlevel
 echo "root:root" | chpasswd
 chown -R nginx:nginx /usr/share/nginx/html
 chmod -R 777 /usr/share/nginx/html
-nginx -g 'daemon off;'
+nginx
+while pgrep nginx >/dev/null && pgrep sshd >/dev/null; do
+    sleep 1;
+done
